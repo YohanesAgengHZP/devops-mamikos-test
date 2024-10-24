@@ -1,0 +1,8 @@
+services:
+   app-vue-front:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: ghcr.io/yohanesagenghzp/mamikos-devops-test-vue:latest
+    ports:
+      - '8080:8080'
