@@ -47,12 +47,14 @@ jobs:
     env:
       DEPLOYMENT_FILE_PATH: ${{ vars.DEPLOYMENT_PATH }}
     steps:
-    - name: Start ssh-agent and add PEM key
+    - name: Start ssh add PEM key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PEM_FILE }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        echo "${{ secrets.SSH_PEM_FILE }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        eval "$(ssh-agent -s)"  
+        ssh-add ~/.ssh/id_rsa 
+        ssh-keyscan github.com >> ~/.ssh/known_host
 
     - name: SSH into VM and Deploy
       run: |
@@ -72,10 +74,14 @@ jobs:
     name: Test Service URLs
     needs: deploy 
     steps:
-    - name: Start ssh-agent and add PEM key
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PEM_FILE }}
+    - name: Start ssh add PEM key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PEM_FILE }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        eval "$(ssh-agent -s)"  
+        ssh-add ~/.ssh/id_rsa 
+        ssh-keyscan github.com >> ~/.ssh/known_host
 
     - name: SSH into VM and Test Service URLs
       run: |
