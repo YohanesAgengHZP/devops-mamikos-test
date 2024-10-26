@@ -60,7 +60,7 @@ jobs:
     - name: Test Service URLs
       run: |
           minikube service list
-          minikube service vuejs-app --url
+          minikube service vuejs-app -n mamikos-devops --url
 
   # Step 5: Clean from unused docker components (images, containers)
   Cleanup:
