@@ -1,7 +1,7 @@
 name: deploy vue app into minikube cluster
 
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
+  # Triggers the workflow on push or pull request events but only for the "dev" branch
   push:
     branches: [ "dev" ]
   pull_request:
@@ -39,7 +39,7 @@ jobs:
       env:
         GHCR_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
 
-  # Step 3: SSH to VM, pull latest code, and apply deployment
+  # Step 3: apply deployment
   Deploy:
     runs-on: self-hosted
     needs: build_and_push
@@ -52,7 +52,7 @@ jobs:
 
 
   # Step 4: Test service URLs
-  test_services:
+  Test_services:
     runs-on: self-hosted
     name: Test Service URLs
     needs: Deploy 
