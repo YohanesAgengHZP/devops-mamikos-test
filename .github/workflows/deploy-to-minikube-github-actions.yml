@@ -44,6 +44,9 @@ jobs:
   Deploy:
     runs-on: self-hosted
     needs: checkout
+    env:
+      DEPLOYMENT_PATH: ${{ vars.DEPLOYMENT_PATH }}
+      HPA_FILE_PATH: ${{ vars.HPA_FILE_PATH }}
     steps:
       - name: Deploy to Minikube
         run: |
