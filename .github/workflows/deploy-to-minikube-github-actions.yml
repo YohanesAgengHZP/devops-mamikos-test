@@ -15,7 +15,6 @@ jobs:
   
   build_and_push:
     runs-on: self-hosted
-    environment: production
     needs: checkout
     env:
       DOCKERFILE_PATH: ${{ vars.DOCKERFILE_PATH }}
@@ -40,13 +39,10 @@ jobs:
         run: |
           docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME:$IMAGE_TAG \
             --cache-from=$IMAGE_NAME:$IMAGE_TAG $BASE_PATH
-          echo "Image Name: ${{ env.IMAGE_NAME }}"
-          echo "Image Tag: ${{ env.IMAGE_TAG }}"
           docker push $IMAGE_NAME:$IMAGE_TAG
 
   Deploy:
     runs-on: self-hosted
-    environment: production
     needs: build_and_push
     steps:
       - name: Deploy to Minikube
