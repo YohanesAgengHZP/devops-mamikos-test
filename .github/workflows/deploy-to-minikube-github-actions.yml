@@ -61,3 +61,21 @@ jobs:
       run: |
           minikube service list
           minikube service vuejs-app --url
+
+  # Step 5: Clean from unused docker components (images, containers)
+  Cleanup:
+    runs-on: self-hosted
+    needs: Test_services
+    steps:
+    - name: Cleanup Docker
+      run: |
+        echo "Removing stopped containers..."
+        docker container prune -f
+        
+        echo "Removing dangling images..."
+        docker image prune -f
+        
+        echo "Removing unused images..."
+        docker image prune -a -f
+        
+        echo "Cleanup completed."

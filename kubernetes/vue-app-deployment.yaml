@@ -20,7 +20,7 @@ spec:
         - name: ghcr-secret
       containers:
       - name: vuejs-app
-        image: "ghcr.io/yohanesagenghzp/mamikos-devops-test-vue:latest"
+        image: "ghcr.io/yohanesagenghzp/mamikos-devops-test-vue:${IMAGE_TAG}"
         ports:
           - containerPort: 8080
         resources:                # Define resource limits and requests
@@ -30,6 +30,21 @@ spec:
             requests:
               cpu: "250m"           # Request 0.25 CPU
               memory: "256Mi"
+        livenessProbe:
+          httpGet:
+            path: /vue-snake-game 
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /vue-snake-game 
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        env:                      
+        - name: IMAGE_TAG
+          value: "testing"
 ---
 apiVersion: v1
 kind: Service
