@@ -20,7 +20,7 @@ spec:
         - name: ghcr-secret
       containers:
       - name: vuejs-app
-        image: "ghcr.io/yohanesagenghzp/mamikos-devops-test-vue:testing"
+        image: "ghcr.io/yohanesagenghzp/mamikos-devops-test-vue:prod"
         ports:
           - containerPort: 8080
         resources:                # Define resource limits and requests
