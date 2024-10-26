@@ -60,4 +60,4 @@ jobs:
     - name: Test Service URLs
       run: |
           minikube service list
-          minikube service nodejs-app --url
+          minikube service vuejs-app --url
