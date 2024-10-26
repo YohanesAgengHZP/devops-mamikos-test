@@ -53,9 +53,12 @@ jobs:
     steps:
       - name: Deploy to Minikube
         run: |
-          kubectl apply -f $DEPLOYMENT_FILE_PATH
+          kubectl apply -f $DEPLOYMENT_FILE_PATH 
+          kubectl apply -f $HPA_FILE_PATH
         env:
           DEPLOYMENT_FILE_PATH: ${{ vars.DEPLOYMENT_PATH }}
+          HPA_FILE_PATH: ${{ vars.HPA_FILE_PATH }}
+
 
   HPA_Testing:
     runs-on: self-hosted
