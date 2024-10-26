@@ -22,7 +22,7 @@ jobs:
       IMAGE_NAME: ${{ vars.IMAGE_NAME }}
       IMAGE_TAG: ${{ vars.IMAGE_TAG }}
       BASE_PATH: ${{ vars.BASE_PATH }}
-      PROD_BRANCH: ${{ vars.PROD_BRANCH }}
+      DEV_BRANCH: ${{ vars.DEV_BRANCH }}
     steps:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
@@ -30,7 +30,7 @@ jobs:
       - name: Pull Latest Code
         run: |
           cd $BASE_PATH
-          git pull origin $PROD_BRANCH
+          git pull origin $DEV_BRANCH
 
       - name: Pull Existing Image for Cache
         run: |
@@ -40,6 +40,9 @@ jobs:
         run: |
           docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME:$IMAGE_TAG \
             --cache-from=$IMAGE_NAME:$IMAGE_TAG $BASE_PATH
+          echo ($IMAGE_NAME)
+          echo "Image Name: ${{ env.IMAGE_NAME }}"
+          echo "Image Tag: ${{ env.IMAGE_TAG }}"
           docker push $IMAGE_NAME:$IMAGE_TAG
 
   Deploy:
@@ -47,10 +50,6 @@ jobs:
     environment: production
     needs: build_and_push
     steps:
-      - name: Set Kubernetes context
-        run: |
-          minikube context use minikube
-
       - name: Deploy to Minikube
         run: |
           kubectl apply -f $DEPLOYMENT_FILE_PATH
