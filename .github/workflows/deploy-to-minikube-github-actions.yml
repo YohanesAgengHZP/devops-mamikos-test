@@ -72,7 +72,7 @@ jobs:
   Test_services:
     runs-on: self-hosted
     name: Test Service URLs
-    needs: Deploy 
+    needs: HPA_Testing 
     steps:
     - name: Test Service URLs
       run: |
