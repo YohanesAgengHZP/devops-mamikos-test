@@ -32,13 +32,13 @@ spec:
               memory: "256Mi"
         livenessProbe:
           httpGet:
-            path: /liveness
+            path: /vue-snake-game/
             port: 8080
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /probe 
+            path: /vue-snake-game/
             port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5
