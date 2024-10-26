@@ -11,4 +11,4 @@ spec:
       limits:
         cpu: "1"
     command: ["stress"]
-    args: ["--cpu", "2", "--timeout", "30"]
+    args: ["--cpu", "2", "--timeout", "300"]
