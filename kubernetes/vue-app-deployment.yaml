@@ -1,0 +1,46 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: vuejs-app
+  namespace: default
+  labels:
+    app: vuejs-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vuejs-app
+  template:
+    metadata:
+      labels:
+        app: vuejs-app
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+      - name: vuejs-app
+        image: "ghcr.io/yohanesagenghzp/mamikos-devops-test-vue:latest"
+        ports:
+          - containerPort: 8080
+        resources:                # Define resource limits and requests
+            limits:
+              cpu: "500m"           # Limit to 0.5 CPU
+              memory: "512Mi"       # Limit to 512 MiB memory
+            requests:
+              cpu: "250m"           # Request 0.25 CPU
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vuejs-app
+  namespace: default
+spec:
+  selector:
+    app: vuejs-app
+  type: NodePort
+  ports:
+  - name: http
+    targetPort: 8080
+    port: 8080

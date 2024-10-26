@@ -1,0 +1,76 @@
+on: [push]
+
+jobs:
+  # Step 1: Checkout code
+  checkout:
+    runs-on: self-hosted
+    name: Checkout Code
+    steps:
+    - uses: actions/checkout@v2
+
+  # Step 2: Build and push Docker image to GHCR
+  build_and_push:
+    runs-on: self-hosted
+    name: Build and Push Docker Image
+    needs: checkout  # Runs after checkout
+    env:
+      DOCKERFILE_PATH: ${{ vars.DOCKERFILE_PATH }}
+      IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+      IMAGE_TAG: ${{ vars.IMAGE_TAG}}
+      BASE_PATH: ${{ vars.BASE_PATH}}
+    steps:
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+    - name: Build and Push Image to GHCR
+      run: |
+        docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME:$IMAGE_TAG $BASE_PATH
+        docker push $IMAGE_NAME:$IMAGE_TAG
+      env:
+        GHCR_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+
+  # Step 3: SSH to VM, pull latest code, and apply deployment
+  deploy:
+    runs-on: self-hosted
+    name: Deploy to Minikube
+    needs: build_and_push  # Runs after build_and_push
+    env:
+      DEPLOYMENT_FILE_PATH: ${{ vars.DEPLOYMENT_PATH }}
+    steps:
+    - name: Start ssh-agent and add PEM key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PEM_FILE }}
+
+    - name: SSH into VM and Deploy
+      run: |
+          ssh -o StrictHostKeyChecking=no ${SSH_USER}@${VM_IP} << 'EOF'
+          git -C $BASE_PATH pull
+          kubectl apply -f $DEPLOYMENT_FILE_PATH
+          EOF
+      env:
+        SSH_USER: ${{ secrets.SSH_USER }}
+        VM_IP: ${{ secrets.VM_IP }}
+        BASE_PATH: ${{ vars.BASE_PATH }}
+        DEPLOYMENT_FILE_PATH: ${{ env.DEPLOYMENT_FILE_PATH }}
+
+  # Step 4: Test service URLs
+  test_services:
+    runs-on: self-hosted
+    name: Test Service URLs
+    needs: deploy 
+    steps:
+    - name: Start ssh-agent and add PEM key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PEM_FILE }}
+
+    - name: SSH into VM and Test Service URLs
+      run: |
+          ssh -o StrictHostKeyChecking=no ${SSH_USER}@${VM_IP} << 'EOF'
+          minikube service list
+          minikube service nodejs-app --url
+          EOF
+      env:
+        SSH_USER: ${{ secrets.SSH_USER }}
+        VM_IP: ${{ secrets.VM_IP }}
