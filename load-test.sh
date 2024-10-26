@@ -2,11 +2,13 @@
 
 NAMESPACE="mamikos-devops"
 LOAD_GENERATOR_PREFIX="load-generator"
+YAML_PATH="/home/ageng/devops-mamikos-test/kubernetes/load-generator-pod.yaml"
 
 function start_load_generators() {
     echo "Starting load generator pods..."
     for i in {1..5}; do
-        kubectl run -i --tty "${LOAD_GENERATOR_PREFIX}-${i}" --rm --image=busybox --restart=Never -n "${NAMESPACE}" -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://vuejs-app:8080; done" &
+        POD_NAME="${LOAD_GENERATOR_PREFIX}-${i}"
+        sed "s/{{ID}}/${i}/g" "${YAML_PATH}" | kubectl apply -f -
     done
     echo "Load generator pods started."
 }

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: load-generator-{{ID}}
+  namespace: mamikos-devops
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    args:
+    - /bin/sh
+    - -c
+    - while sleep 0.01; do wget -q -O- http://vuejs-app:8080; done
+  restartPolicy: Never
