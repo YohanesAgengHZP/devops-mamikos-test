@@ -47,7 +47,7 @@ jobs:
     steps:
       - name: Deploy to Minikube
         run: |
-          kubectl apply -f $DEPLOYMENT_FILE_PATH
+          kubectl apply -f $DEPLOYMENT_PATH
           kubectl apply -f $HPA_FILE_PATH
 
   Test_services:
