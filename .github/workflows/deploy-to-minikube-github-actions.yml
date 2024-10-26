@@ -30,7 +30,7 @@ jobs:
       IMAGE_NAME: ${{ vars.IMAGE_NAME }}
       IMAGE_TAG: ${{ vars.IMAGE_TAG }}
       BASE_PATH: ${{ vars.BASE_PATH }}
-      DEV_BRANCH: ${{ vars.DEV_BRANCH }}
+      PROD_BRANCH: ${{ vars.PROD_BRANCH }}
     steps:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
@@ -38,7 +38,7 @@ jobs:
       - name: Pull Latest Code
         run: |
           cd $BASE_PATH
-          git pull origin $DEV_BRANCH
+          git pull origin $PROD_BRANCH
 
       - name: Pull Existing Image for Cache
         run: |
