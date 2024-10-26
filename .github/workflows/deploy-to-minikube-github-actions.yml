@@ -1,30 +1,22 @@
 name: deploy vue app into minikube cluster
 
 on:
-  # Triggers the workflow on push or pull request events but only for the "dev" branch
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "main" ]
-  
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [ "dev" ]
   workflow_dispatch:
 
 jobs:
-  # Step 1: Checkout code
   checkout:
     runs-on: self-hosted
-    name: Checkout Code
     steps:
     - uses: actions/checkout@v2
   
-  # Step 2: Build and push Docker image to GHCR
   build_and_push:
     runs-on: self-hosted
     environment: production
-    name: Build and Push Docker Image
-    needs: checkout  # Runs after checkout
+    needs: checkout
     env:
       DOCKERFILE_PATH: ${{ vars.DOCKERFILE_PATH }}
       IMAGE_NAME: ${{ vars.IMAGE_NAME }}
@@ -42,7 +34,7 @@ jobs:
 
       - name: Pull Existing Image for Cache
         run: |
-          docker pull $IMAGE_NAME:$IMAGE_TAG || true  # Pulls the image if it exists, ignores if not
+          docker pull $IMAGE_NAME:$IMAGE_TAG || true
 
       - name: Build and Push Image to GHCR with Cache
         run: |
@@ -50,25 +42,22 @@ jobs:
             --cache-from=$IMAGE_NAME:$IMAGE_TAG $BASE_PATH
           docker push $IMAGE_NAME:$IMAGE_TAG
 
-  # Step 3: apply deployment
   Deploy:
     runs-on: self-hosted
     environment: production
     needs: build_and_push
     steps:
+      - name: Set Kubernetes context
+        run: |
+          minikube context use minikube
+
       - name: Deploy to Minikube
         run: |
-          kubectl apply -f $DEPLOYMENT_FILE_PATH 
+          kubectl apply -f $DEPLOYMENT_FILE_PATH
           kubectl apply -f $HPA_FILE_PATH
-        env:
-          DEPLOYMENT_FILE_PATH: ${{ vars.DEPLOYMENT_PATH }}
-          HPA_FILE_PATH: ${{ vars.HPA_FILE_PATH }}
 
-
-  # Step 4: Test service URLs
   Test_services:
     runs-on: self-hosted
-    name: Test Service URLs
     needs: Deploy 
     steps:
     - name: Test Service URLs
@@ -76,7 +65,6 @@ jobs:
           minikube service list
           minikube service vuejs-app -n mamikos-devops --url
 
-  # Step 5: Clean from unused docker components (images, containers)
   Cleanup:
     runs-on: self-hosted
     needs: Test_services
