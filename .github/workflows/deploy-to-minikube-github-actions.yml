@@ -28,22 +28,20 @@ jobs:
       IMAGE_NAME: ${{ vars.IMAGE_NAME }}
       IMAGE_TAG: ${{ vars.IMAGE_TAG }}
       BASE_PATH: ${{ vars.BASE_PATH }}
-      DEV_BRANCH: ${{ vars.DEV_BRANCH}}
+      DEV_BRANCH: ${{ vars.DEV_BRANCH }}
     steps:
-    - name: Pull Latest Code
-      run: |
-        cd $BASE_PATH
-        git pull origin $DEV_BRANCH
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-    - name: Log in to GitHub Container Registry
-      run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Pull Existing Image for Cache
+        run: |
+          docker pull $IMAGE_NAME:$IMAGE_TAG || true  # Pulls the image if it exists, ignores if not
 
-    - name: Build and Push Image to GHCR
-      run: |
-        docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME:$IMAGE_TAG $BASE_PATH
-        docker push $IMAGE_NAME:$IMAGE_TAG
-      env:
-        GHCR_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+      - name: Build and Push Image to GHCR with Cache
+        run: |
+          docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME:$IMAGE_TAG \
+            --cache-from=$IMAGE_NAME:$IMAGE_TAG $BASE_PATH
+          docker push $IMAGE_NAME:$IMAGE_TAG
 
   # Step 3: apply deployment
   Deploy:
