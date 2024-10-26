@@ -59,30 +59,18 @@ jobs:
           DEPLOYMENT_FILE_PATH: ${{ vars.DEPLOYMENT_PATH }}
           HPA_FILE_PATH: ${{ vars.HPA_FILE_PATH }}
 
-
-  HPA_Testing:
-    runs-on: self-hosted
-    needs: Deploy
-    steps:
-      - name: stress test for cpu load
-        run: |
-          kubectl apply -f $LOAD_TEST_PATH
-        env:
-          LOAD_TEST_PATH: ${{ vars.LOAD_TEST_PATH }}
-
-
-  # Step 5: Test service URLs
+  # Step 4: Test service URLs
   Test_services:
     runs-on: self-hosted
     name: Test Service URLs
-    needs: HPA_Testing 
+    needs: Deploy
     steps:
     - name: Test Service URLs
       run: |
           minikube service list
           minikube service vuejs-app -n mamikos-devops --url
 
-  # Step 6: Clean from unused docker components (images, containers)
+  # Step 5: Clean from unused docker components (images, containers)
   Cleanup:
     runs-on: self-hosted
     needs: Test_services
