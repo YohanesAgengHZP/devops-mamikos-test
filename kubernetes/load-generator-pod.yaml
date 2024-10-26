@@ -1,3 +1,4 @@
+## script for load test cpu 
 apiVersion: v1
 kind: Pod
 metadata:

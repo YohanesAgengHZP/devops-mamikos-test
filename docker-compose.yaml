@@ -3,6 +3,6 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    image: ghcr.io/yohanesagenghzp/mamikos-devops-test-vue:prod
+    image: ghcr.io/yohanesagenghzp/mamikos-devops-vue:prod
     ports:
       - '80:8080'
