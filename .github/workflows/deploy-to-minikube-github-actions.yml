@@ -33,7 +33,7 @@ jobs:
     steps:
     - name: Pull Latest Code
       run: |
-        cd $BASE_PATH t
+        cd $BASE_PATH
         git pull origin $DEV_BRANCH
 
     - name: Log in to GitHub Container Registry
