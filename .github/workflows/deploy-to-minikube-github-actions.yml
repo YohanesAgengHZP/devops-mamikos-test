@@ -42,31 +42,14 @@ jobs:
   # Step 3: SSH to VM, pull latest code, and apply deployment
   deploy:
     runs-on: self-hosted
-    name: Deploy to Minikube
-    needs: build_and_push  # Runs after build_and_push
-    env:
-      DEPLOYMENT_FILE_PATH: ${{ vars.DEPLOYMENT_PATH }}
+    needs: build_and_push
     steps:
-    - name: Start ssh add PEM key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PEM_FILE }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        eval "$(ssh-agent -s)"  
-        ssh-add ~/.ssh/id_ed25519 
-        ssh-keyscan ageng3000@gmail.com >> ~/.ssh/known_host
-
-    - name: SSH into VM and Deploy
-      run: |
-          ssh -o StrictHostKeyChecking=no ${SSH_USER}@${VM_IP} << 'EOF'
-          git -C $BASE_PATH pull
+      - name: Deploy to Minikube
+        run: |
           kubectl apply -f $DEPLOYMENT_FILE_PATH
-          EOF
-      env:
-        SSH_USER: ${{ secrets.SSH_USER }}
-        VM_IP: ${{ secrets.VM_IP }}
-        BASE_PATH: ${{ vars.BASE_PATH }}
-        DEPLOYMENT_FILE_PATH: ${{ env.DEPLOYMENT_FILE_PATH }}
+        env:
+          DEPLOYMENT_FILE_PATH: ${{ vars.DEPLOYMENT_PATH }}
+
 
   # Step 4: Test service URLs
   test_services:
