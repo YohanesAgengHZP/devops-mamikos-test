@@ -48,9 +48,11 @@ jobs:
       DEPLOYMENT_FILE_PATH: ${{ vars.DEPLOYMENT_PATH }}
     steps:
     - name: Start ssh-agent and add PEM key
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PEM_FILE }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PEM_FILE }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
 
     - name: SSH into VM and Deploy
       run: |
