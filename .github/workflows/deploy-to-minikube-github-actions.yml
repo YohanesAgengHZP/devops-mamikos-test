@@ -33,6 +33,11 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
+      - name: Pull Latest Code
+        run: |
+          cd $BASE_PATH
+          git pull origin $DEV_BRANCH
+
       - name: Pull Existing Image for Cache
         run: |
           docker pull $IMAGE_NAME:$IMAGE_TAG || true  # Pulls the image if it exists, ignores if not
