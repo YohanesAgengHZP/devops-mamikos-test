@@ -2,7 +2,7 @@
 
 NAMESPACE="mamikos-devops"
 LOAD_GENERATOR_PREFIX="load-generator"
-YAML_PATH="/home/ageng/devops-mamikos-test/kubernetes/load-generator-pod.yaml"
+YAML_PATH="./kubernetes/load-generator-pod.yaml"
 
 function start_load_generators() {
     echo "Starting load generator pods..."

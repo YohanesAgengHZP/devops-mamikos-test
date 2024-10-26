@@ -13,37 +13,37 @@ jobs:
     steps:
     - uses: actions/checkout@v2
   
-  build_and_push:
-    runs-on: self-hosted
-    needs: checkout
-    env:
-      DOCKERFILE_PATH: ${{ vars.DOCKERFILE_PATH }}
-      IMAGE_NAME: ${{ vars.IMAGE_NAME }}
-      IMAGE_TAG: ${{ vars.IMAGE_TAG }}
-      BASE_PATH: ${{ vars.BASE_PATH }}
-      DEV_BRANCH: ${{ vars.DEV_BRANCH }}
-    steps:
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+  # build_and_push:
+  #   runs-on: self-hosted
+  #   needs: checkout
+  #   env:
+  #     DOCKERFILE_PATH: ${{ vars.DOCKERFILE_PATH }}
+  #     IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+  #     IMAGE_TAG: ${{ vars.IMAGE_TAG }}
+  #     BASE_PATH: ${{ vars.BASE_PATH }}
+  #     DEV_BRANCH: ${{ vars.DEV_BRANCH }}
+  #   steps:
+  #     - name: Log in to GitHub Container Registry
+  #       run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      - name: Pull Latest Code
-        run: |
-          cd $BASE_PATH
-          git pull origin $DEV_BRANCH
+  #     - name: Pull Latest Code
+  #       run: |
+  #         cd $BASE_PATH
+  #         git pull origin $DEV_BRANCH
 
-      - name: Pull Existing Image for Cache
-        run: |
-          docker pull $IMAGE_NAME:$IMAGE_TAG || true
+  #     - name: Pull Existing Image for Cache
+  #       run: |
+  #         docker pull $IMAGE_NAME || true
 
-      - name: Build and Push Image to GHCR with Cache
-        run: |
-          docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME:$IMAGE_TAG \
-            --cache-from=$IMAGE_NAME:$IMAGE_TAG $BASE_PATH
-          docker push $IMAGE_NAME:$IMAGE_TAG
+  #     - name: Build and Push Image to GHCR with Cache
+  #       run: |
+  #         docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME \
+  #           --cache-from=$IMAGE_NAME $BASE_PATH
+  #         docker push $IMAGE_NAME
 
   Deploy:
     runs-on: self-hosted
-    needs: build_and_push
+    needs: checkout
     steps:
       - name: Deploy to Minikube
         run: |
