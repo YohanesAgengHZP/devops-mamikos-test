@@ -17,34 +17,59 @@ jobs:
     name: Checkout Code
     steps:
     - uses: actions/checkout@v2
+
+  check_for_changes:
+    runs-on: self-hosted
+    name: Check for Changes in Dockerfile or Source Code
+    needs: checkout
+    outputs:
+      changes_detected: ${{ steps.check.outputs.changes_detected }}
+    steps:
+      - name: Calculate Checksum
+        id: check
+        run: |
+          FILES="Dockerfile src/"  # Add relevant files or folders to watch for changes
+          checksum=$(tar -cf - $FILES | md5sum | awk '{ print $1 }')
+          echo "Checksum: $checksum"
+          echo "::set-output name=changes_detected::false"
+
+          # Check for changes
+          if [[ -f checksum.txt ]]; then
+            old_checksum=$(cat checksum.txt)
+            if [[ "$checksum" != "$old_checksum" ]]; then
+              echo "::set-output name=changes_detected::true"
+            fi
+          else
+            echo "::set-output name=changes_detected::true"
+          fi
+
+          # Save new checksum for future comparisons
+          echo "$checksum" > checksum.txt
   
 
   # Step 2: Build and push Docker image to GHCR
   build_and_push:
     runs-on: self-hosted
     name: Build and Push Docker Image
-    needs: checkout  # Runs after checkout
+    needs: [checkout, check_for_changes]
+    if: needs.check_for_changes.outputs.changes_detected == 'true'
     env:
       DOCKERFILE_PATH: ${{ vars.DOCKERFILE_PATH }}
       IMAGE_NAME: ${{ vars.IMAGE_NAME }}
       IMAGE_TAG: ${{ vars.IMAGE_TAG }}
       BASE_PATH: ${{ vars.BASE_PATH }}
-      DEV_BRANCH: ${{ vars.DEV_BRANCH}}
     steps:
-    - name: Pull Latest Code
-      run: |
-        cd $BASE_PATH
-        git pull origin $DEV_BRANCH
+      - name: Pull Latest Code
+        run: |
+          cd $BASE_PATH
+          git pull origin $DEV_BRANCH
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-    - name: Log in to GitHub Container Registry
-      run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-    - name: Build and Push Image to GHCR
-      run: |
-        docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME:$IMAGE_TAG $BASE_PATH
-        docker push $IMAGE_NAME:$IMAGE_TAG
-      env:
-        GHCR_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+      - name: Build and Push Image to GHCR
+        run: |
+          docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME:$IMAGE_TAG $BASE_PATH
+          docker push $IMAGE_NAME:$IMAGE_TAG
 
   # Step 3: apply deployment
   Deploy:
