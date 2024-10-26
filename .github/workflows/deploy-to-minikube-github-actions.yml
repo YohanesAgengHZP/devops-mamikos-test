@@ -40,7 +40,7 @@ jobs:
         GHCR_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
 
   # Step 3: SSH to VM, pull latest code, and apply deployment
-  deploy:
+  Deploy:
     runs-on: self-hosted
     needs: build_and_push
     steps:
@@ -55,23 +55,9 @@ jobs:
   test_services:
     runs-on: self-hosted
     name: Test Service URLs
-    needs: deploy 
+    needs: Deploy 
     steps:
-    - name: Start ssh add PEM key
+    - name: Test Service URLs
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PEM_FILE }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        eval "$(ssh-agent -s)"  
-        ssh-add ~/.ssh/id_rsa 
-        ssh-keyscan github.com >> ~/.ssh/known_host
-
-    - name: SSH into VM and Test Service URLs
-      run: |
-          ssh -o StrictHostKeyChecking=no ${SSH_USER}@${VM_IP} << 'EOF'
           minikube service list
           minikube service nodejs-app --url
-          EOF
-      env:
-        SSH_USER: ${{ secrets.SSH_USER }}
-        VM_IP: ${{ secrets.VM_IP }}
