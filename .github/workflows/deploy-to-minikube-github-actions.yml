@@ -3,9 +3,9 @@ name: deploy vue app into minikube cluster
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -50,11 +50,11 @@ jobs:
     - name: Start ssh add PEM key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PEM_FILE }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PEM_FILE }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
         eval "$(ssh-agent -s)"  
-        ssh-add ~/.ssh/id_rsa 
-        ssh-keyscan github.com >> ~/.ssh/known_host
+        ssh-add ~/.ssh/id_ed25519 
+        ssh-keyscan ageng3000@gmail.com >> ~/.ssh/known_host
 
     - name: SSH into VM and Deploy
       run: |
