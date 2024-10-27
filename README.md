@@ -1,12 +1,18 @@
 
 
 # VUE SNAKE GAME USING DOCKER AND MINIKUBE
-Apps can be accesed via these links:
+Apps are being served with NGINX:
 - **Grafana**: [http://103.89.165.77:8080/grafana/login](http://103.89.165.77:8080/grafana/login)
   - **Username**: visitor
   - **Password**: visitor
 
 - **Vue Snake Game Apps**: [http://103.89.165.77:8080/vue-snake-game/](http://103.89.165.77:8080/vue-snake-game/)
+
+for nginx docker and conf you can find on this
+```bash
+    file: reverse-proxy-default.conf
+    docker compose -f nginx-docker.yaml
+```
 
 Containerize vue app using docker, you can find image used on this repo on the packages menu
 ## Prerequisite
@@ -14,6 +20,7 @@ Containerize vue app using docker, you can find image used on this repo on the p
 -   Helm
 -   Minikube Cluster
 -   Kubectl
+-   NGINX
 -   GHCR repository to pull or push image
 
 ## installation
