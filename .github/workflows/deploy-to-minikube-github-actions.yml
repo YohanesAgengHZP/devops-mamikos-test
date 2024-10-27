@@ -2,9 +2,9 @@ name: deploy vue app into minikube cluster
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   workflow_dispatch:
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
   build_and_push:
     runs-on: self-hosted
     needs: checkout
-    environment: production
+    #environment: production
     env:
       DOCKERFILE_PATH: ${{ vars.DOCKERFILE_PATH }}
       IMAGE_NAME: ${{ vars.IMAGE_NAME }}

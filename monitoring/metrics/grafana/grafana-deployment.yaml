@@ -18,3 +18,21 @@ spec:
         image: grafana/grafana:latest
         ports:
           - containerPort: 3000
+        env:
+          - name: GF_DASHBOARDS_JSON_ENABLED
+            value: "true"
+          - name: GF_DASHBOARDS_JSON_PATH
+            value: /var/lib/grafana/dashboards
+        volumeMounts:
+          - name: grafana-config
+            mountPath: /etc/grafana/grafana.ini
+            subPath: grafana.ini
+          - name: grafana-dashboard-storage
+            mountPath: /var/lib/grafana/dashboards  
+      volumes:
+        - name: grafana-config
+          configMap:
+            name: grafana-config
+        - name: grafana-dashboard-storage
+          persistentVolumeClaim:
+            claimName: grafana-dashboard-pvc

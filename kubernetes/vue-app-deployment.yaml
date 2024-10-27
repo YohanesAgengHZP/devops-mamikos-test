@@ -52,7 +52,7 @@ metadata:
 spec:
   selector:
     app: vuejs-app
-  type: NodePort
+  type: LoadBalancer
   ports:
   - name: http
     targetPort: 8080
