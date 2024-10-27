@@ -1,6 +1,12 @@
 
 
 # VUE SNAKE GAME USING DOCKER AND MINIKUBE
+Apps can be accesed via these links:
+- **Grafana**: [http://103.89.165.77:8080/grafana/login](http://103.89.165.77:8080/grafana/login)
+  - **Username**: visitor
+  - **Password**: visitor
+
+- **Vue Snake Game Apps**: [http://103.89.165.77:8080/vue-snake-game/](http://103.89.165.77:8080/vue-snake-game/)
 
 Containerize vue app using docker, you can find image used on this repo on the packages menu
 ## Prerequisite
